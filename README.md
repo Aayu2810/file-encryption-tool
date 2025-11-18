@@ -19,7 +19,7 @@ A file encryption tool with advanced security features including steganography, 
 
 ## Installation
 ```bash
-git clone https://github.com/your-username/file-encryption-tool.git
+git clone https://github.com/Aayu2810/file-encryption-tool.git
 cd file-encryption-tool
 pip install -r requirements.txt
 ```
@@ -40,8 +40,8 @@ python src/main.py
 - Pillow (image manipulation)
 
 ## Course Information
-Operating Systems Project - [Your University Name]  
-Semester: [Your Semester]
+Operating Systems Project - RVCE  
+Semester: 3rd 
 
 ## License
 MIT License
