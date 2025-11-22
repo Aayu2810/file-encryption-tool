@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Destruct Mode</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header-icon {
+            font-size: 5em;
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            color: #856404;
+        }
+
+        .warning-box h3 {
+            margin-bottom: 10px;
+            color: #ff9800;
+        }
+
+        .file-drop {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+            margin-bottom: 25px;
+        }
+
+        .file-drop:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+
+        .file-drop-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .checkbox-group {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+        }
+
+        .self-destruct-options {
+            background: #fff0f0;
+            border: 2px solid #ff5252;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .self-destruct-options.show {
+            display: block;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 500px;
+            }
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, #ff5252 0%, #ff1744 100%);
+        }
+
+        .file-info {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: none;
+            border-left: 4px solid #667eea;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        .status-message {
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+            display: none;
+            font-size: 1.1em;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+            display: block;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+            display: block;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e8ebff;
+        }
+
+        .feature-item-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">← Back to Home</a>
+
+        <div class="card">
+            <div class="header">
+                <div class="header-icon">⏰</div>
+                <h1>Self-Destruct Mode</h1>
+                <p>Files that automatically delete under specified conditions</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Warning: Use With Caution!</h3>
+                <p>Self-destruct mode will permanently delete your encrypted file when conditions are met. This action cannot be undone.</p>
+            </div>
+
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-item-icon">👁️</div>
+                    <strong>View Counter</strong>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Delete after N views</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-item-icon">📅</div>
+                    <strong>Expiry Date</strong>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Auto-delete after date</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-item-icon">🚫</div>
+                    <strong>Wrong Attempts</strong>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Delete after failed tries</p>
+                </div>
+            </div>
+
+            <div class="file-drop" onclick="document.getElementById('file-input').click()">
+                <div class="file-drop-icon">📁</div>
+                <h3>Click or Drag & Drop File</h3>
+                <p style="color: #666; margin-top: 10px;">Select file to encrypt with self-destruct</p>
+            </div>
+            <input type="file" id="file-input" style="display: none;">
+
+            <div class="file-info" id="file-info"></div>
+
+            <div class="input-group">
+                <label>🔑 Encryption Password</label>
+                <input type="password" id="password" placeholder="Enter strong password (min 6 characters)">
+            </div>
+
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" id="enable-view-limit">
+                    <span><strong>👁️ View Counter Limit</strong> - Delete after specified number of views</span>
+                </label>
+                <div id="view-limit-options" style="display: none; margin-left: 40px;">
+                    <div class="input-group">
+                        <label>Maximum Views Allowed</label>
+                        <input type="number" id="max-views" placeholder="e.g., 3" min="1" value="3">
+                    </div>
+                </div>
+
+                <label>
+                    <input type="checkbox" id="enable-expiry">
+                    <span><strong>📅 Expiry Date</strong> - Delete after specific date/time</span>
+                </label>
+                <div id="expiry-options" style="display: none; margin-left: 40px;">
+                    <div class="input-group">
+                        <label>Expiry Date & Time</label>
+                        <input type="datetime-local" id="expiry-date">
+                    </div>
+                </div>
+
+                <label>
+                    <input type="checkbox" id="enable-wrong-attempts" checked>
+                    <span><strong>🚫 Wrong Password Limit</strong> - Delete after N failed attempts</span>
+                </label>
+                <div id="wrong-attempts-options" style="margin-left: 40px;">
+                    <div class="input-group">
+                        <label>Maximum Wrong Attempts</label>
+                        <input type="number" id="max-attempts" placeholder="e.g., 3" min="1" value="3">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn danger" onclick="encryptWithSelfDestruct()">
+                ⏰ Encrypt with Self-Destruct
+            </button>
+
+            <div id="status" class="status-message"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        let fileData = null;
+
+        // Toggle options
+        document.getElementById('enable-view-limit').addEventListener('change', function() {
+            document.getElementById('view-limit-options').style.display = this.checked ? 'block' : 'none';
+        });
+
+        document.getElementById('enable-expiry').addEventListener('change', function() {
+            document.getElementById('expiry-options').style.display = this.checked ? 'block' : 'none';
+        });
+
+        document.getElementById('enable-wrong-attempts').addEventListener('change', function() {
+            document.getElementById('wrong-attempts-options').style.display = this.checked ? 'block' : 'none';
+        });
+
+        // File handling
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    fileData = { name: file.name, data: e.target.result };
+                    document.getElementById('file-info').innerHTML = `
+                        <strong>📄 Selected File:</strong><br>
+                        Name: ${file.name}<br>
+                        Size: ${(file.size / 1024).toFixed(2)} KB
+                    `;
+                    document.getElementById('file-info').classList.add('show');
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
+        function encryptWithSelfDestruct() {
+            const status = document.getElementById('status');
+            const password = document.getElementById('password').value;
+
+            if (!fileData) {
+                showStatus(status, '❌ Please select a file to encrypt!', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showStatus(status, '❌ Password must be at least 6 characters!', 'error');
+                return;
+            }
+
+            // Collect self-destruct settings
+            const settings = {
+                viewLimit: document.getElementById('enable-view-limit').checked ? 
+                          parseInt(document.getElementById('max-views').value) : null,
+                expiryDate: document.getElementById('enable-expiry').checked ? 
+                           document.getElementById('expiry-date').value : null,
+                maxAttempts: document.getElementById('enable-wrong-attempts').checked ? 
+                            parseInt(document.getElementById('max-attempts').value) : null,
+                currentViews: 0,
+                wrongAttempts: 0
+            };
+
+            if (!settings.viewLimit && !settings.expiryDate && !settings.maxAttempts) {
+                showStatus(status, '❌ Please enable at least one self-destruct condition!', 'error');
+                return;
+            }
+
+            showStatus(status, '⏰ Encrypting with self-destruct settings...', 'success');
+
+            setTimeout(() => {
+                try {
+                    // Encrypt file data
+                    const wordArray = CryptoJS.lib.WordArray.create(new Uint8Array(fileData.data));
+                    const encrypted = CryptoJS.AES.encrypt(wordArray, password).toString();
+
+                    // Create package with metadata
+                    const package_data = {
+                        encrypted: encrypted,
+                        metadata: settings,
+                        createdAt: new Date().toISOString()
+                    };
+
+                    const packageStr = JSON.stringify(package_data);
+                    const blob = new Blob([packageStr], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileData.name + '.selfdestruct.enc';
+                    a.click();
+
+                    let message = '✅ File encrypted with self-destruct! Conditions:\n';
+                    if (settings.viewLimit) message += `\n• Max views: ${settings.viewLimit}`;
+                    if (settings.expiryDate) message += `\n• Expires: ${new Date(settings.expiryDate).toLocaleString()}`;
+                    if (settings.maxAttempts) message += `\n• Max wrong attempts: ${settings.maxAttempts}`;
+
+                    showStatus(status, message, 'success');
+                } catch (e) {
+                    showStatus(status, '❌ Encryption failed: ' + e.message, 'error');
+                }
+            }, 1000);
+        }
+
+        function showStatus(element, message, type) {
+            element.innerHTML = message.replace(/\n/g, '<br>');
+            element.className = 'status-message ' + type;
+        }
+
+        // Drag and drop
+        const dropZone = document.querySelector('.file-drop');
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.background = '#e8ebff';
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.background = '#f8f9ff';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.background = '#f8f9ff';
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                document.getElementById('file-input').files = e.dataTransfer.files;
+                document.getElementById('file-input').dispatchEvent(new Event('change'));
+            }
+        });
+    </script>
+</body>
+</html>

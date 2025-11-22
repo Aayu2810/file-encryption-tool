@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure File Encryption Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 60px;
+            animation: fadeInDown 0.8s;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            text-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            transition: left 0.5s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);
+        }
+
+        .feature-card:hover::before {
+            left: 0;
+        }
+
+        .feature-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .feature-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .feature-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .feature-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .feature-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card p {
+            color: #666;
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .feature-card .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .about-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: fadeInUp 1s;
+        }
+
+        .about-section h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .about-section p {
+            color: #555;
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .tech-stack {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .tech-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 60px;
+            padding: 20px;
+            opacity: 0.9;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Secure File Encryption Tool</h1>
+            <p>Choose your encryption method</p>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card" onclick="window.location.href='aes_encryption.html'">
+                <div class="feature-icon">🔒</div>
+                <h2>AES-256 Encryption</h2>
+                <p>Military-grade encryption with HMAC authentication. Secure your files with industry-standard AES-256 algorithm.</p>
+                <a href="aes_encryption.html" class="btn">Start Encrypting →</a>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='self_destruct.html'">
+                <div class="feature-icon">⏰</div>
+                <h2>Self-Destruct Mode</h2>
+                <p>Set time limits, view counters, and auto-delete files after specified conditions are met.</p>
+                <a href="self_destruct.html" class="btn">Set Self-Destruct →</a>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='dual_password.html'">
+                <div class="feature-icon">🎭</div>
+                <h2>Dual Password</h2>
+                <p>Plausible deniability feature. One file, two passwords - show different content based on which password is used.</p>
+                <a href="dual_password.html" class="btn">Create Dual Encryption →</a>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='steganography.html'">
+                <div class="feature-icon">🖼️</div>
+                <h2>Steganography</h2>
+                <p>Hide your encrypted data inside images using LSB steganography. Invisible to the naked eye.</p>
+                <a href="steganography.html" class="btn">Hide in Image →</a>
+            </div>
+        </div>
+
+        <div class="about-section">
+            <h2>📚 About This Project</h2>
+            <p>
+                This <strong>Secure File Encryption Tool</strong> is developed as an Operating Systems course project, 
+                demonstrating advanced security concepts and encryption techniques.
+            </p>
+            <p>
+                The project implements multiple layers of security including AES-256 encryption, HMAC authentication, 
+                self-destruct mechanisms, plausible deniability, and steganography - all built from scratch.
+            </p>
+            
+            <h3 style="color: #667eea; margin: 25px 0 15px 0;">🔬 OS Concepts Demonstrated:</h3>
+            <div class="tech-stack">
+                <span class="tech-badge">File I/O Operations</span>
+                <span class="tech-badge">Memory Management</span>
+                <span class="tech-badge">Process Control</span>
+                <span class="tech-badge">Secure Deletion</span>
+                <span class="tech-badge">Metadata Handling</span>
+                <span class="tech-badge">System Calls</span>
+            </div>
+
+            <h3 style="color: #667eea; margin: 25px 0 15px 0;">👥 Project By:</h3>
+            <p>
+                <strong>Aayushi Priya</strong> [1RV24IS005]<br>
+                RV College of Engineering<br>
+                Operating Systems Course - 2024-25
+            </p>
+
+            <h3 style="color: #667eea; margin: 25px 0 15px 0;">🔗 Source Code:</h3>
+            <p>
+                <a href="https://github.com/Aayu2810/file-encryption-tool" target="_blank" 
+                   style="color: #667eea; font-weight: 600;">
+                    github.com/Aayu2810/file-encryption-tool
+                </a>
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>🔐 Secure File Encryption Tool v1.0</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                RV College of Engineering | © 2024-25
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Prevent card click when clicking button
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+    </script>
+</body>
+</html>

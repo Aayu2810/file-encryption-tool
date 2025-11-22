@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steganography - Hide in Images</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header-icon {
+            font-size: 5em;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #fff9c4 0%, #ffe082 100%);
+            border-left: 4px solid #ffa726;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .info-box h3 {
+            color: #f57c00;
+            margin-bottom: 15px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            font-size: 1.1em;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .stego-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .file-box {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+        }
+
+        .file-box:hover {
+            background: #f0f2ff;
+            transform: scale(1.02);
+        }
+
+        .file-box.data {
+            border-color: #667eea;
+        }
+
+        .file-box.image {
+            border-color: #ff6b6b;
+            background: #fff5f5;
+        }
+
+        .file-box.image:hover {
+            background: #ffe5e5;
+        }
+
+        .file-box-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .file-info {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        .status-message {
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+            display: none;
+            font-size: 1.1em;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+            display: block;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+            display: block;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .single-file-drop {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+            margin-bottom: 25px;
+        }
+
+        .single-file-drop:hover {
+            background: #f0f2ff;
+            transform: scale(1.02);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .stego-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">← Back to Home</a>
+
+        <div class="card">
+            <div class="header">
+                <div class="header-icon">🖼️</div>
+                <h1>Steganography</h1>
+                <p>Hide encrypted data inside images - invisible to the naked eye</p>
+            </div>
+
+            <div class="info-box">
+                <h3>🔍 How LSB Steganography Works:</h3>
+                <ul>
+                    <li><strong>LSB Technique</strong> - Modifies least significant bit of each pixel</li>
+                    <li><strong>Invisible Changes</strong> - Human eye cannot detect the difference</li>
+                    <li><strong>Data Capacity</strong> - Depends on image size (larger = more data)</li>
+                    <li><strong>Format</strong> - Best with PNG (lossless), avoid JPEG (lossy)</li>
+                </ul>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('hide')">🖼️ Hide Data</button>
+                <button class="tab" onclick="switchTab('extract')">🔍 Extract Data</button>
+            </div>
+
+            <div id="hide-tab" class="tab-content active">
+                <h3 style="color: #667eea; margin-bottom: 20px;">Step 1: Select Files</h3>
+                
+                <div class="stego-section">
+                    <div class="file-box data" onclick="document.getElementById('data-file').click()">
+                        <div class="file-box-icon">📄</div>
+                        <h4 style="color: #667eea;">Data to Hide</h4>
+                        <p style="color: #666; font-size: 0.9em; margin-top: 10px;">Select encrypted file or any data</p>
+                        <div class="file-info" id="data-file-info"></div>
+                    </div>
+                    <input type="file" id="data-file" style="display: none;">
+
+                    <div class="file-box image" onclick="document.getElementById('cover-image').click()">
+                        <div class="file-box-icon">🖼️</div>
+                        <h4 style="color: #ff6b6b;">Cover Image</h4>
+                        <p style="color: #666; font-size: 0.9em; margin-top: 10px;">PNG or JPG image</p>
+                        <div class="file-info" id="cover-image-info"></div>
+                        <img id="cover-preview" class="image-preview" style="display: none;">
+                    </div>
+                    <input type="file" id="cover-image" style="display: none;" accept="image/png,image/jpeg">
+                </div>
+
+                <h3 style="color: #667eea; margin-bottom: 20px;">Step 2: Optional Encryption</h3>
+
+                <div class="input-group">
+                    <label>🔑 Password (optional - adds extra security)</label>
+                    <input type="password" id="hide-password" placeholder="Leave empty for no encryption">
+                </div>
+
+                <button class="btn" onclick="hideDataInImage()">🖼️ Hide Data in Image</button>
+
+                <div id="hide-status" class="status-message"></div>
+            </div>
+
+            <div id="extract-tab" class="tab-content">
+                <h3 style="color: #667eea; margin-bottom: 20px;">Select Stego Image</h3>
+
+                <div class="single-file-drop" onclick="document.getElementById('stego-image').click()">
+                    <div style="font-size: 4em; margin-bottom: 15px;">🔍</div>
+                    <h3>Click or Drag & Drop Stego Image</h3>
+                    <p style="color: #666; margin-top: 10px;">Image with hidden data</p>
+                </div>
+                <input type="file" id="stego-image" style="display: none;" accept="image/png">
+
+                <div class="file-info" id="stego-image-info"></div>
+
+                <div class="input-group">
+                    <label>🔑 Password (if you encrypted the data)</label>
+                    <input type="password" id="extract-password" placeholder="Leave empty if no encryption was used">
+                </div>
+
+                <button class="btn" onclick="extractDataFromImage()">🔍 Extract Hidden Data</button>
+
+                <div id="extract-status" class="status-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        let dataFileData = null;
+        let coverImageData = null;
+        let stegoImageData = null;
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
+        }
+
+        document.getElementById('data-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    dataFileData = { name: file.name, data: new Uint8Array(e.target.result) };
+                    document.getElementById('data-file-info').innerHTML = `✓ ${file.name}<br>${(file.size/1024).toFixed(2)} KB`;
+                    document.getElementById('data-file-info').classList.add('show');
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
+        document.getElementById('cover-image').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        coverImageData = { name: file.name, image: img };
+                        const capacity = (img.width * img.height * 3) / 8;
+                        document.getElementById('cover-image-info').innerHTML = 
+                            `✓ ${file.name}<br>${img.width}x${img.height}<br>Capacity: ${(capacity/1024).toFixed(2)} KB`;
+                        document.getElementById('cover-image-info').classList.add('show');
+                        
+                        document.getElementById('cover-preview').src = e.target.result;
+                        document.getElementById('cover-preview').style.display = 'block';
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('stego-image').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        stegoImageData = { name: file.name, image: img };
+                        document.getElementById('stego-image-info').innerHTML = 
+                            `✓ ${file.name}<br>${img.width}x${img.height}`;
+                        document.getElementById('stego-image-info').classList.add('show');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function hideDataInImage() {
+            const status = document.getElementById('hide-status');
+            const password = document.getElementById('hide-password').value;
+
+            if (!dataFileData) {
+                showStatus(status, '❌ Please select data file to hide!', 'error');
+                return;
+            }
+
+            if (!coverImageData) {
+                showStatus(status, '❌ Please select a cover image!', 'error');
+                return;
+            }
+
+            const capacity = (coverImageData.image.width * coverImageData.image.height * 3) / 8;
+            if (dataFileData.data.length > capacity * 0.8) {
+                showStatus(status, '❌ Image too small! Need larger image to hide this data.', 'error');
+                return;
+            }
+
+            showStatus(status, '🖼️ Hiding data in image... Please wait...', 'success');
+
+            setTimeout(() => {
+                try {
+                    let dataToHide = dataFileData.data;
+
+                    // Encrypt if password provided
+                    if (password) {
+                        const wordArray = CryptoJS.lib.WordArray.create(dataToHide);
+                        const encrypted = CryptoJS.AES.encrypt(wordArray, password).toString();
+                        dataToHide = new TextEncoder().encode(encrypted);
+                    }
+
+                    // Create canvas
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = coverImageData.image.width;
+                    canvas.height = coverImageData.image.height;
+                    ctx.drawImage(coverImageData.image, 0, 0);
+
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const pixels = imageData.data;
+
+                    // Convert data to binary
+                    let binaryData = '';
+                    for (let i = 0; i < dataToHide.length; i++) {
+                        binaryData += dataToHide[i].toString(2).padStart(8, '0');
+                    }
+                    
+                    // Add delimiter
+                    const delimiter = '11111111';
+                    binaryData += delimiter;
+
+                    // Hide in LSB
+                    let dataIndex = 0;
+                    for (let i = 0; i < pixels.length && dataIndex < binaryData.length; i += 4) {
+                        for (let j = 0; j < 3 && dataIndex < binaryData.length; j++) {
+                            pixels[i + j] = (pixels[i + j] & 0xFE) | parseInt(binaryData[dataIndex]);
+                            dataIndex++;
+                        }
+                    }
+
+                    ctx.putImageData(imageData, 0, 0);
+
+                    // Download
+                    canvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'stego_' + coverImageData.name.replace(/\.[^/.]+$/, '') + '.png';
+                        a.click();
+
+                        showStatus(status, '✅ Data successfully hidden in image! Download started.', 'success');
+                    }, 'image/png');
+
+                } catch (e) {
+                    showStatus(status, '❌ Failed to hide data: ' + e.message, 'error');
+                }
+            }, 1000);
+        }
+
+        function extractDataFromImage() {
+            const status = document.getElementById('extract-status');
+            const password = document.getElementById('extract-password').value;
+
+            if (!stegoImageData) {
+                showStatus(status, '❌ Please select a stego image!', 'error');
+                return;
+            }
+
+            showStatus(status, '🔍 Extracting hidden data...', 'success');
+
+            setTimeout(() => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = stegoImageData.image.width;
+                    canvas.height = stegoImageData.image.height;
+                    ctx.drawImage(stegoImageData.image, 0, 0);
+
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const pixels = imageData.data;
+
+                    // Extract binary data
+                    let binaryData = '';
+                    for (let i = 0; i < pixels.length; i += 4) {
+                        for (let j = 0; j < 3; j++) {
+                            binaryData += (pixels[i + j] & 1).toString();
+                        }
+                    }
+
+                    // Find delimiter
+                    const delimiterIndex = binaryData.indexOf('11111111');
+                    if (delimiterIndex === -1) {
+                        throw new Error('No hidden data found in image');
+                    }
+
+                    binaryData = binaryData.substring(0, delimiterIndex);
+
+                    // Convert to bytes
+                    const bytes = [];
+                    for (let i = 0; i < binaryData.length; i += 8) {
+                        const byte = binaryData.substr(i, 8);
+                        if (byte.length === 8) {
+                            bytes.push(parseInt(byte, 2));
+                        }
+                    }
+
+                    let extractedData = new Uint8Array(bytes);
+
+                    // Decrypt if password provided
+                    if (password) {
+                        const encryptedStr = new TextDecoder().decode(extractedData);
+                        const decrypted = CryptoJS.AES.decrypt(encryptedStr, password);
+                        
+                        if (decrypted.sigBytes <= 0) {
+                            throw new Error('Wrong password');
+                        }
+
+                        const typedArray = new Uint8Array(decrypted.words.length * 4);
+                        for (let i = 0; i < decrypted.words.length; i++) {
+                            const word = decrypted.words[i];
+                            typedArray[i * 4] = (word >> 24) & 0xff;
+                            typedArray[i * 4 + 1] = (word >> 16) & 0xff;
+                            typedArray[i * 4 + 2] = (word >> 8) & 0xff;
+                            typedArray[i * 4 + 3] = word & 0xff;
+                        }
+                        extractedData = typedArray.slice(0, decrypted.sigBytes);
+                    }
+
+                    // Download
+                    const blob = new Blob([extractedData]);
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'extracted_data';
+                    a.click();
+
+                    showStatus(status, '✅ Data extracted successfully! Download started.', 'success');
+
+                } catch (e) {
+                    showStatus(status, '❌ Extraction failed: ' + e.message, 'error');
+                }
+            }, 1000);
+        }
+
+        function showStatus(element, message, type) {
+            element.innerHTML = message.replace(/\n/g, '<br>');
+            element.className = 'status-message ' + type;
+        }
+    </script>
+</body>
+</html>
