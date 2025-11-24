@@ -91,6 +91,59 @@
             color: #ff9800;
         }
 
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            font-size: 1.1em;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e8ebff;
+        }
+
+        .feature-item-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
         .file-drop {
             border: 3px dashed #667eea;
             border-radius: 15px;
@@ -162,31 +215,6 @@
             cursor: pointer;
         }
 
-        .self-destruct-options {
-            background: #fff0f0;
-            border: 2px solid #ff5252;
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 25px;
-            display: none;
-        }
-
-        .self-destruct-options.show {
-            display: block;
-            animation: slideDown 0.3s;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                max-height: 0;
-            }
-            to {
-                opacity: 1;
-                max-height: 500px;
-            }
-        }
-
         .btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -244,23 +272,16 @@
             display: block;
         }
 
-        .feature-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .feature-item {
+        .metadata-display {
             background: #f8f9ff;
-            padding: 15px;
+            padding: 20px;
             border-radius: 10px;
-            text-align: center;
-            border: 2px solid #e8ebff;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
         }
 
-        .feature-item-icon {
-            font-size: 2em;
+        .metadata-display h4 {
+            color: #667eea;
             margin-bottom: 10px;
         }
 
@@ -273,6 +294,11 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
@@ -310,68 +336,112 @@
                 </div>
             </div>
 
-            <div class="file-drop" onclick="document.getElementById('file-input').click()">
-                <div class="file-drop-icon">📁</div>
-                <h3>Click or Drag & Drop File</h3>
-                <p style="color: #666; margin-top: 10px;">Select file to encrypt with self-destruct</p>
-            </div>
-            <input type="file" id="file-input" style="display: none;">
-
-            <div class="file-info" id="file-info"></div>
-
-            <div class="input-group">
-                <label>🔑 Encryption Password</label>
-                <input type="password" id="password" placeholder="Enter strong password (min 6 characters)">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('encrypt')">🔒 Encrypt</button>
+                <button class="tab" onclick="switchTab('decrypt')">🔓 Decrypt</button>
             </div>
 
-            <div class="checkbox-group">
-                <label>
-                    <input type="checkbox" id="enable-view-limit">
-                    <span><strong>👁️ View Counter Limit</strong> - Delete after specified number of views</span>
-                </label>
-                <div id="view-limit-options" style="display: none; margin-left: 40px;">
-                    <div class="input-group">
-                        <label>Maximum Views Allowed</label>
-                        <input type="number" id="max-views" placeholder="e.g., 3" min="1" value="3">
+            <!-- ENCRYPT TAB -->
+            <div id="encrypt-tab" class="tab-content active">
+                <div class="file-drop" onclick="document.getElementById('file-input').click()">
+                    <div class="file-drop-icon">📁</div>
+                    <h3>Click or Drag & Drop File</h3>
+                    <p style="color: #666; margin-top: 10px;">Select file to encrypt with self-destruct</p>
+                </div>
+                <input type="file" id="file-input" style="display: none;">
+
+                <div class="file-info" id="file-info"></div>
+
+                <div class="input-group">
+                    <label>🔑 Encryption Password</label>
+                    <input type="password" id="password" placeholder="Enter strong password (min 6 characters)">
+                </div>
+
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" id="enable-view-limit">
+                        <span><strong>👁️ View Counter Limit</strong> - Delete after specified number of views</span>
+                    </label>
+                    <div id="view-limit-options" style="display: none; margin-left: 40px;">
+                        <div class="input-group">
+                            <label>Maximum Views Allowed</label>
+                            <input type="number" id="max-views" placeholder="e.g., 3" min="1" value="3">
+                        </div>
+                    </div>
+
+                    <label>
+                        <input type="checkbox" id="enable-expiry">
+                        <span><strong>📅 Expiry Date</strong> - Delete after specific date/time</span>
+                    </label>
+                    <div id="expiry-options" style="display: none; margin-left: 40px;">
+                        <div class="input-group">
+                            <label>Expiry Date & Time</label>
+                            <input type="datetime-local" id="expiry-date">
+                        </div>
+                    </div>
+
+                    <label>
+                        <input type="checkbox" id="enable-wrong-attempts" checked>
+                        <span><strong>🚫 Wrong Password Limit</strong> - Delete after N failed attempts</span>
+                    </label>
+                    <div id="wrong-attempts-options" style="margin-left: 40px;">
+                        <div class="input-group">
+                            <label>Maximum Wrong Attempts</label>
+                            <input type="number" id="max-attempts" placeholder="e.g., 3" min="1" value="3">
+                        </div>
                     </div>
                 </div>
 
-                <label>
-                    <input type="checkbox" id="enable-expiry">
-                    <span><strong>📅 Expiry Date</strong> - Delete after specific date/time</span>
-                </label>
-                <div id="expiry-options" style="display: none; margin-left: 40px;">
-                    <div class="input-group">
-                        <label>Expiry Date & Time</label>
-                        <input type="datetime-local" id="expiry-date">
-                    </div>
-                </div>
+                <button class="btn danger" onclick="encryptWithSelfDestruct()">
+                    ⏰ Encrypt with Self-Destruct
+                </button>
 
-                <label>
-                    <input type="checkbox" id="enable-wrong-attempts" checked>
-                    <span><strong>🚫 Wrong Password Limit</strong> - Delete after N failed attempts</span>
-                </label>
-                <div id="wrong-attempts-options" style="margin-left: 40px;">
-                    <div class="input-group">
-                        <label>Maximum Wrong Attempts</label>
-                        <input type="number" id="max-attempts" placeholder="e.g., 3" min="1" value="3">
-                    </div>
-                </div>
+                <div id="encrypt-status" class="status-message"></div>
             </div>
 
-            <button class="btn danger" onclick="encryptWithSelfDestruct()">
-                ⏰ Encrypt with Self-Destruct
-            </button>
+            <!-- DECRYPT TAB -->
+            <div id="decrypt-tab" class="tab-content">
+                <div class="file-drop" onclick="document.getElementById('decrypt-file-input').click()">
+                    <div class="file-drop-icon">🔓</div>
+                    <h3>Click or Drag & Drop Encrypted File</h3>
+                    <p style="color: #666; margin-top: 10px;">Select .selfdestruct.enc file</p>
+                </div>
+                <input type="file" id="decrypt-file-input" style="display: none;" accept=".selfdestruct.enc">
 
-            <div id="status" class="status-message"></div>
+                <div class="file-info" id="decrypt-file-info"></div>
+
+                <div id="metadata-display" class="metadata-display" style="display: none;">
+                    <h4>📊 File Status:</h4>
+                    <div id="metadata-content"></div>
+                </div>
+
+                <div class="input-group">
+                    <label>🔑 Decryption Password</label>
+                    <input type="password" id="decrypt-password" placeholder="Enter password">
+                </div>
+
+                <button class="btn" onclick="decryptSelfDestruct()">🔓 Decrypt File</button>
+
+                <div id="decrypt-status" class="status-message"></div>
+            </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script>
         let fileData = null;
+        let decryptFileData = null;
+        let decryptMetadata = null;
 
-        // Toggle options
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
+        }
+
+        // Toggle options - ENCRYPT
         document.getElementById('enable-view-limit').addEventListener('change', function() {
             document.getElementById('view-limit-options').style.display = this.checked ? 'block' : 'none';
         });
@@ -384,13 +454,13 @@
             document.getElementById('wrong-attempts-options').style.display = this.checked ? 'block' : 'none';
         });
 
-        // File handling
+        // File handling - ENCRYPT
         document.getElementById('file-input').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    fileData = { name: file.name, data: e.target.result };
+                    fileData = { name: file.name, data: new Uint8Array(e.target.result) };
                     document.getElementById('file-info').innerHTML = `
                         <strong>📄 Selected File:</strong><br>
                         Name: ${file.name}<br>
@@ -402,8 +472,52 @@
             }
         });
 
+        // File handling - DECRYPT
+        document.getElementById('decrypt-file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const packageStr = new TextDecoder().decode(e.target.result);
+                        const package_data = JSON.parse(packageStr);
+                        
+                        decryptFileData = package_data.encrypted;
+                        decryptMetadata = package_data.metadata;
+
+                        document.getElementById('decrypt-file-info').innerHTML = `
+                            <strong>🔒 Encrypted File:</strong><br>
+                            Name: ${file.name}<br>
+                            Size: ${(file.size / 1024).toFixed(2)} KB
+                        `;
+                        document.getElementById('decrypt-file-info').classList.add('show');
+
+                        // Display metadata
+                        let metaHTML = '<ul style="line-height: 1.8;">';
+                        if (decryptMetadata.viewLimit) {
+                            metaHTML += `<li>👁️ Max Views: ${decryptMetadata.viewLimit}</li>`;
+                        }
+                        if (decryptMetadata.expiryDate) {
+                            metaHTML += `<li>📅 Expires: ${new Date(decryptMetadata.expiryDate).toLocaleString()}</li>`;
+                        }
+                        if (decryptMetadata.maxAttempts) {
+                            metaHTML += `<li>🚫 Max Wrong Attempts: ${decryptMetadata.maxAttempts}</li>`;
+                        }
+                        metaHTML += '</ul>';
+
+                        document.getElementById('metadata-content').innerHTML = metaHTML;
+                        document.getElementById('metadata-display').style.display = 'block';
+
+                    } catch (e) {
+                        showStatus(document.getElementById('decrypt-status'), '❌ Invalid self-destruct file format!', 'error');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
         function encryptWithSelfDestruct() {
-            const status = document.getElementById('status');
+            const status = document.getElementById('encrypt-status');
             const password = document.getElementById('password').value;
 
             if (!fileData) {
@@ -438,7 +552,7 @@
             setTimeout(() => {
                 try {
                     // Encrypt file data
-                    const wordArray = CryptoJS.lib.WordArray.create(new Uint8Array(fileData.data));
+                    const wordArray = CryptoJS.lib.WordArray.create(fileData.data);
                     const encrypted = CryptoJS.AES.encrypt(wordArray, password).toString();
 
                     // Create package with metadata
@@ -468,31 +582,127 @@
             }, 1000);
         }
 
+        function decryptSelfDestruct() {
+            const status = document.getElementById('decrypt-status');
+            const password = document.getElementById('decrypt-password').value;
+
+            if (!decryptFileData) {
+                showStatus(status, '❌ Please select an encrypted file!', 'error');
+                return;
+            }
+
+            if (!password) {
+                showStatus(status, '❌ Please enter the password!', 'error');
+                return;
+            }
+
+            // Check expiry
+            if (decryptMetadata.expiryDate) {
+                const expiry = new Date(decryptMetadata.expiryDate);
+                const now = new Date();
+                if (now > expiry) {
+                    showStatus(status, '❌ File has expired and cannot be decrypted!', 'error');
+                    return;
+                }
+            }
+
+            // Check view limit
+            if (decryptMetadata.viewLimit && decryptMetadata.currentViews >= decryptMetadata.viewLimit) {
+                showStatus(status, '❌ View limit reached! File cannot be decrypted.', 'error');
+                return;
+            }
+
+            // Check wrong attempts
+            if (decryptMetadata.wrongAttempts >= decryptMetadata.maxAttempts) {
+                showStatus(status, '❌ Maximum wrong attempts reached! File locked.', 'error');
+                return;
+            }
+
+            showStatus(status, '🔓 Decrypting...', 'success');
+
+            setTimeout(() => {
+                try {
+                    const decrypted = CryptoJS.AES.decrypt(decryptFileData, password);
+
+                    if (decrypted.sigBytes <= 0) {
+                        // Wrong password
+                        decryptMetadata.wrongAttempts++;
+                        const remaining = decryptMetadata.maxAttempts - decryptMetadata.wrongAttempts;
+                        
+                        if (remaining <= 0) {
+                            showStatus(status, '❌ Maximum wrong attempts reached! File would be deleted in real system.', 'error');
+                        } else {
+                            showStatus(status, `❌ Wrong password! Attempts remaining: ${remaining}`, 'error');
+                        }
+                        return;
+                    }
+
+                    // Convert to binary
+                    const typedArray = new Uint8Array(decrypted.words.length * 4);
+                    for (let i = 0; i < decrypted.words.length; i++) {
+                        const word = decrypted.words[i];
+                        typedArray[i * 4] = (word >> 24) & 0xff;
+                        typedArray[i * 4 + 1] = (word >> 16) & 0xff;
+                        typedArray[i * 4 + 2] = (word >> 8) & 0xff;
+                        typedArray[i * 4 + 3] = word & 0xff;
+                    }
+
+                    const blob = new Blob([typedArray.slice(0, decrypted.sigBytes)]);
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'decrypted_file';
+                    a.click();
+
+                    // Increment view count
+                    decryptMetadata.currentViews++;
+                    decryptMetadata.wrongAttempts = 0; // Reset on success
+
+                    let message = '✅ File decrypted successfully!';
+                    if (decryptMetadata.viewLimit) {
+                        const remaining = decryptMetadata.viewLimit - decryptMetadata.currentViews;
+                        if (remaining > 0) {
+                            message += `\n\n⚠️ Views remaining: ${remaining}`;
+                        } else {
+                            message += '\n\n🔥 This was the last view! File would be deleted in real system.';
+                        }
+                    }
+
+                    showStatus(status, message, 'success');
+
+                } catch (e) {
+                    showStatus(status, '❌ Decryption failed: ' + e.message, 'error');
+                }
+            }, 1000);
+        }
+
         function showStatus(element, message, type) {
             element.innerHTML = message.replace(/\n/g, '<br>');
             element.className = 'status-message ' + type;
         }
 
-        // Drag and drop
+        // Drag and drop - ENCRYPT
         const dropZone = document.querySelector('.file-drop');
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.style.background = '#e8ebff';
-        });
+        if (dropZone) {
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.style.background = '#e8ebff';
+            });
 
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.style.background = '#f8f9ff';
-        });
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.style.background = '#f8f9ff';
+            });
 
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.style.background = '#f8f9ff';
-            const file = e.dataTransfer.files[0];
-            if (file) {
-                document.getElementById('file-input').files = e.dataTransfer.files;
-                document.getElementById('file-input').dispatchEvent(new Event('change'));
-            }
-        });
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.style.background = '#f8f9ff';
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    document.getElementById('file-input').files = e.dataTransfer.files;
+                    document.getElementById('file-input').dispatchEvent(new Event('change'));
+                }
+            });
+        }
     </script>
 </body>
 </html>
