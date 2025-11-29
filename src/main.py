@@ -2,14 +2,14 @@ import os
 import sys
 from encryption import FileEncryption
 from self_destruct import SelfDestruct
-from steganography import Steganography
+from steganography import SteganographyWithPriority
 from plausible_deniability import PlausibleDeniability
 import utils
 
 class FileEncryptionTool:
     def __init__(self):
         self.encryptor = FileEncryption()
-        self.stego = Steganography()
+        self.stego = SteganographyWithPriority()
         self.pd = PlausibleDeniability()
     
     def encrypt_menu(self):
