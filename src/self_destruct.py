@@ -138,36 +138,3 @@ class SelfDestruct:
             "Active": self.metadata["is_active"]
         }
         return status
-
-
-# Test the module
-if __name__ == "__main__":
-    # Create test encrypted file
-    test_file = "test.enc"
-    with open(test_file, 'w') as f:
-        f.write("test content")
-    
-    # Test self-destruct
-    sd = SelfDestruct(test_file)
-    sd.set_max_views(3)
-    sd.set_max_wrong_attempts(3)
-    
-    print("Status:", sd.get_status())
-    
-    # Simulate views
-    for i in range(4):
-        print(f"\nView {i+1}:")
-        should_destruct, reasons = sd.should_self_destruct()
-        
-        if should_destruct:
-            print(f"Should self-destruct: {reasons}")
-            break
-        else:
-            sd.increment_view_count()
-    
-    # Clean up
-    import os
-    if os.path.exists(test_file):
-        os.remove(test_file)
-    if os.path.exists(test_file + ".meta"):
-        os.remove(test_file + ".meta")
