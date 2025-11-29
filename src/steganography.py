@@ -1,141 +1,239 @@
 from PIL import Image
 import os
+import heapq
+import numpy as np
 
-class Steganography:
+class SteganographyWithPriority:
     def __init__(self):
-        self.delimiter = b"<<<END_OF_DATA>>>"  # Marker to identify end of hidden data
+        self.delimiter = b"<<<END_OF_DATA>>>"
+    
+    def calculate_pixel_priority(self, img_array, x, y, width, height):
+        """
+        Calculate priority for a pixel based on:
+        1. Local complexity (difference from neighbors)
+        2. LSB entropy (randomness)
+        3. Distance from edges
+        
+        Returns: Priority score (0.0 to 1.0)
+        Higher score = better for hiding data
+        """
+        # 1. COMPLEXITY: Average difference from 8 neighbors
+        complexity = 0
+        neighbors = []
+        for dx in [-1, 0, 1]:
+            for dy in [-1, 0, 1]:
+                if dx == 0 and dy == 0:
+                    continue
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < width and 0 <= ny < height:
+                    neighbors.append(img_array[ny, nx])
+        
+        if neighbors:
+            pixel_value = np.mean(img_array[y, x])
+            neighbor_avg = [np.mean(n) for n in neighbors]
+            complexity = np.mean([abs(int(neighbor_avg[i]) - int(pixel_value)) for i in range(len(neighbor_avg))])
+            complexity = min(complexity / 255.0, 1.0)
+        
+        # 2. ENTROPY: Randomness of LSB
+        r, g, b = img_array[y, x]
+        lsb_sum = (r & 1) + (g & 1) + (b & 1)
+        entropy = abs(lsb_sum - 1.5) / 1.5
+        
+        # 3. EDGE DISTANCE: Distance from image edges
+        edge_x = min(x, width - x) / (width / 2)
+        edge_y = min(y, height - y) / (height / 2)
+        edge_distance = (edge_x + edge_y) / 2
+        
+        # CALCULATE FINAL PRIORITY (Weighted sum)
+        priority = (complexity * 0.4) + (entropy * 0.3) + (edge_distance * 0.3)
+        
+        return priority
+    
+    def build_priority_queue(self, img):
+        """
+        Build a priority queue of all pixels
+        Returns: Heap with (-priority, x, y) tuples
+        """
+        width, height = img.size
+        img_array = np.array(img)
+        
+        priority_queue = []
+        
+        print("📊 Building priority queue (analyzing image complexity)...")
+        
+        for y in range(height):
+            for x in range(width):
+                priority = self.calculate_pixel_priority(img_array, x, y, width, height)
+                # Use negative priority for max-heap behavior
+                heapq.heappush(priority_queue, (-priority, x, y))
+            
+            if y % (height // 10) == 0:
+                print(f"   Progress: {int(y/height*100)}%")
+        
+        print(f"✓ Priority queue built with {len(priority_queue)} pixels")
+        return priority_queue
     
     def encode_data_in_image(self, image_path, data, output_path):
-        """Hide encrypted data inside an image using LSB steganography"""
+        """
+        Hide encrypted data in image using PRIORITY-BASED pixel selection
+        """
         try:
-            # Open the cover image
-            img = Image.open(image_path)
+            print("\n🔒 PRIORITY-BASED STEGANOGRAPHY")
+            print("="*50)
             
-            # Convert to RGB if not already
+            img = Image.open(image_path)
             if img.mode != 'RGB':
                 img = img.convert('RGB')
             
-            # Get image dimensions
             width, height = img.size
-            max_bytes = (width * height * 3) // 8  # 3 color channels, 8 bits per byte
-            
-            # Add delimiter to mark end of data
             data_with_delimiter = data + self.delimiter
             
-            # Check if image is large enough
+            max_bytes = (width * height * 3) // 8
             if len(data_with_delimiter) > max_bytes:
-                return False, f"Image too small! Need at least {len(data_with_delimiter)} bytes, but image can hold {max_bytes} bytes"
+                return False, f"Image too small! Need {len(data_with_delimiter)} bytes, capacity {max_bytes} bytes"
             
-            # Convert data to binary
             binary_data = ''.join(format(byte, '08b') for byte in data_with_delimiter)
             data_len = len(binary_data)
             
-            # Load pixel data
+            print(f"📄 Data size: {len(data_with_delimiter)} bytes")
+            print(f"🖼️ Image capacity: {max_bytes} bytes")
+            print(f"📊 Usage: {len(data_with_delimiter)/max_bytes*100:.1f}%")
+            
+            priority_queue = self.build_priority_queue(img)
+            
             pixels = list(img.getdata())
-            new_pixels = []
+            new_pixels = list(pixels)
             
+            print("\n🔐 Hiding data in high-priority pixels...")
             data_index = 0
+            pixels_used = 0
             
-            for pixel in pixels:
-                # Each pixel has 3 values (R, G, B)
-                new_pixel = list(pixel)
+            while data_index < data_len and priority_queue:
+                neg_priority, x, y = heapq.heappop(priority_queue)
+                pixel_index = y * width + x
+                pixel = list(new_pixels[pixel_index])
                 
-                for i in range(3):  # R, G, B
+                for i in range(3):
                     if data_index < data_len:
-                        # Modify LSB (Least Significant Bit)
-                        new_pixel[i] = (new_pixel[i] & 0xFE) | int(binary_data[data_index])
+                        pixel[i] = (pixel[i] & 0xFE) | int(binary_data[data_index])
                         data_index += 1
                 
-                new_pixels.append(tuple(new_pixel))
+                new_pixels[pixel_index] = tuple(pixel)
+                pixels_used += 1
                 
-                # Stop if all data is embedded
-                if data_index >= data_len:
-                    # Keep remaining pixels unchanged
-                    new_pixels.extend(pixels[len(new_pixels):])
-                    break
+                if pixels_used % 1000 == 0:
+                    print(f"   Hidden: {data_index}/{data_len} bits ({data_index/data_len*100:.1f}%)")
             
-            # Create new image with hidden data
+            print(f"✓ Data hidden in {pixels_used} pixels (priority-based selection)")
+            
             stego_img = Image.new(img.mode, img.size)
             stego_img.putdata(new_pixels)
             
-            # Save as PNG (lossless)
             if not output_path.lower().endswith('.png'):
                 output_path += '.png'
             
             stego_img.save(output_path, 'PNG')
             
-            return True, f"Data successfully hidden in image: {output_path}"
+            return True, f"Data successfully hidden using priority queue in: {output_path}"
             
         except Exception as e:
             return False, f"Steganography encoding failed: {str(e)}"
     
     def decode_data_from_image(self, image_path):
-        """Extract hidden data from an image"""
+        """
+        Extract hidden data from image
+        """
         try:
-            # Open the stego image
-            img = Image.open(image_path)
+            print("\n🔍 EXTRACTING DATA FROM IMAGE")
+            print("="*50)
             
-            # Convert to RGB if needed
+            img = Image.open(image_path)
             if img.mode != 'RGB':
                 img = img.convert('RGB')
             
-            # Load pixel data
+            width, height = img.size
+            
+            print("📊 Rebuilding priority queue...")
+            priority_queue = self.build_priority_queue(img)
+            
             pixels = list(img.getdata())
             
-            # Extract binary data from LSBs
+            print("\n🔓 Extracting hidden bits...")
             binary_data = ''
+            delimiter_binary = ''.join(format(byte, '08b') for byte in self.delimiter)
             
-            for pixel in pixels:
-                for i in range(3):  # R, G, B
-                    binary_data += str(pixel[i] & 1)  # Get LSB
+            while priority_queue:
+                neg_priority, x, y = heapq.heappop(priority_queue)
+                pixel_index = y * width + x
+                pixel = pixels[pixel_index]
+                
+                for i in range(3):
+                    binary_data += str(pixel[i] & 1)
+                    
+                    if len(binary_data) >= len(delimiter_binary):
+                        if binary_data.endswith(delimiter_binary):
+                            binary_data = binary_data[:-len(delimiter_binary)]
+                            
+                            all_bytes = bytearray()
+                            for i in range(0, len(binary_data), 8):
+                                byte = binary_data[i:i+8]
+                                if len(byte) == 8:
+                                    all_bytes.append(int(byte, 2))
+                            
+                            extracted_data = bytes(all_bytes)
+                            print(f"✓ Extracted {len(extracted_data)} bytes")
+                            return True, extracted_data
             
-            # Convert binary to bytes
-            all_bytes = bytearray()
-            for i in range(0, len(binary_data), 8):
-                byte = binary_data[i:i+8]
-                if len(byte) == 8:
-                    all_bytes.append(int(byte, 2))
-            
-            # Find delimiter
-            delimiter_index = all_bytes.find(self.delimiter)
-            
-            if delimiter_index == -1:
-                return False, "No hidden data found in image"
-            
-            # Extract actual data (before delimiter)
-            extracted_data = bytes(all_bytes[:delimiter_index])
-            
-            return True, extracted_data
+            return False, "No hidden data found or delimiter not detected"
             
         except Exception as e:
             return False, f"Steganography decoding failed: {str(e)}"
     
     def get_image_capacity(self, image_path):
-        """Calculate how many bytes can be hidden in an image"""
+        """Calculate storage capacity"""
         try:
             img = Image.open(image_path)
             width, height = img.size
-            capacity = (width * height * 3) // 8  # 3 RGB channels, 8 bits per byte
+            capacity = (width * height * 3) // 8
             return capacity
         except:
             return 0
+    
+    def analyze_image_priority_distribution(self, image_path):
+        """
+        Analyze and display priority distribution
+        """
+        img = Image.open(image_path)
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
+        
+        priority_queue = self.build_priority_queue(img)
+        priorities = [-p for p, x, y in priority_queue]
+        
+        print("\n📊 PRIORITY DISTRIBUTION ANALYSIS")
+        print("="*50)
+        print(f"Total pixels: {len(priorities)}")
+        print(f"Average priority: {np.mean(priorities):.3f}")
+        print(f"Std deviation: {np.std(priorities):.3f}")
+        print(f"Min priority: {np.min(priorities):.3f}")
+        print(f"Max priority: {np.max(priorities):.3f}")
+        
+        high_priority = sum(1 for p in priorities if p > 0.7)
+        medium_priority = sum(1 for p in priorities if 0.3 <= p <= 0.7)
+        low_priority = sum(1 for p in priorities if p < 0.3)
+        
+        print(f"\nPriority Distribution:")
+        print(f"  High (>0.7):      {high_priority:6d} pixels ({high_priority/len(priorities)*100:5.1f}%)")
+        print(f"  Medium (0.3-0.7): {medium_priority:6d} pixels ({medium_priority/len(priorities)*100:5.1f}%)")
+        print(f"  Low (<0.3):       {low_priority:6d} pixels ({low_priority/len(priorities)*100:5.1f}%)")
 
 
-# Test the module
 if __name__ == "__main__":
-    steg = Steganography()
+    steg = SteganographyWithPriority()
     
-    print("Testing Steganography Module...")
-    print("Note: You need a test image (test_image.png) to run this test")
-    
-    # Example usage
-    test_data = b"This is secret encrypted data hidden in an image!"
-    
-    # To test, you would need:
-    # 1. A cover image: test_image.png
-    # 2. steg.encode_data_in_image("test_image.png", test_data, "output_stego.png")
-    # 3. steg.decode_data_from_image("output_stego.png")
-    
-    print("\n✓ Steganography module loaded successfully")
-    print("  - Use encode_data_in_image() to hide data")
-    print("  - Use decode_data_from_image() to extract data")
+    print("✓ Priority-Based Steganography Module Loaded")
+    print("\nOS Concepts Demonstrated:")
+    print("  • Priority Queue (heapq)")
+    print("  • Scheduling Algorithms")
+    print("  • Resource Allocation")
+    print("  • Data Structure Management")
