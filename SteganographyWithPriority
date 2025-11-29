@@ -1,0 +1,9 @@
+class SteganographyWithPriority:
+    def calculate_pixel_priority():      # NEW
+        # Calculate priority score
+    
+    def build_priority_queue():          # NEW
+        # Build heap of pixels
+    
+    def encode_data_in_image():
+        # Hide data using priority queue
