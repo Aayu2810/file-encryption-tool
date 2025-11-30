@@ -140,69 +140,64 @@ class SteganographyWithPriority:
             return False, f"Steganography encoding failed: {str(e)}"
     
     def decode_data_from_image(self, image_path):
-    """
-    Extract hidden data from image
-    """
-    try:
-        print("\n🔍 EXTRACTING DATA FROM IMAGE")
-        print("="*50)
-        
-        img = Image.open(image_path)
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
-        
-        width, height = img.size
-        
-        print("📊 Rebuilding priority queue...")
-        priority_queue = self.build_priority_queue(img)
-        
-        pixels = list(img.getdata())
-        
-        print("\n🔓 Extracting hidden bits...")
-        binary_data = ''
-        delimiter_binary = ''.join(format(byte, '08b') for byte in self.delimiter)
-        
-        pixels_processed = 0
-        
-        while priority_queue:
-            neg_priority, x, y = heapq.heappop(priority_queue)
-            pixel_index = y * width + x
-            pixel = pixels[pixel_index]
+        """
+        Extract hidden data from image
+        """
+        try:
+            print("\n🔍 EXTRACTING DATA FROM IMAGE")
+            print("="*50)
             
-            # Extract LSBs from RGB
-            for i in range(3):
-                binary_data += str(pixel[i] & 1)
+            img = Image.open(image_path)
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
             
-            pixels_processed += 1
+            width, height = img.size
             
-            # Check for delimiter every 1000 pixels
-            if pixels_processed % 1000 == 0:
-                if delimiter_binary in binary_data:
-                    print(f"✓ Delimiter found after {pixels_processed} pixels!")
-                    break
-        
-        # Find delimiter position
-        delimiter_pos = binary_data.find(delimiter_binary)
-        
-        if delimiter_pos == -1:
-            return False, "No hidden data found or delimiter not detected"
-        
-        # Extract data before delimiter
-        binary_data = binary_data[:delimiter_pos]
-        
-        # Convert to bytes
-        all_bytes = bytearray()
-        for i in range(0, len(binary_data), 8):
-            byte = binary_data[i:i+8]
-            if len(byte) == 8:
-                all_bytes.append(int(byte, 2))
-        
-        extracted_data = bytes(all_bytes)
-        print(f"✓ Extracted {len(extracted_data)} bytes")
-        return True, extracted_data
-        
-    except Exception as e:
-        return False, f"Steganography decoding failed: {str(e)}"
+            print("📊 Rebuilding priority queue...")
+            priority_queue = self.build_priority_queue(img)
+            
+            pixels = list(img.getdata())
+            
+            print("\n🔓 Extracting hidden bits...")
+            binary_data = ''
+            delimiter_binary = ''.join(format(byte, '08b') for byte in self.delimiter)
+            
+            pixels_processed = 0
+            
+            while priority_queue:
+                neg_priority, x, y = heapq.heappop(priority_queue)
+                pixel_index = y * width + x
+                pixel = pixels[pixel_index]
+                
+                for i in range(3):
+                    binary_data += str(pixel[i] & 1)
+                
+                pixels_processed += 1
+                
+                if pixels_processed % 1000 == 0:
+                    if delimiter_binary in binary_data:
+                        print(f"✓ Delimiter found after {pixels_processed} pixels!")
+                        break
+            
+            delimiter_pos = binary_data.find(delimiter_binary)
+            
+            if delimiter_pos == -1:
+                return False, "No hidden data found or delimiter not detected"
+            
+            binary_data = binary_data[:delimiter_pos]
+            
+            all_bytes = bytearray()
+            for i in range(0, len(binary_data), 8):
+                byte = binary_data[i:i+8]
+                if len(byte) == 8:
+                    all_bytes.append(int(byte, 2))
+            
+            extracted_data = bytes(all_bytes)
+            print(f"✓ Extracted {len(extracted_data)} bytes")
+            return True, extracted_data
+            
+        except Exception as e:
+            return False, f"Steganography decoding failed: {str(e)}"
     
     def get_image_capacity(self, image_path):
         """Calculate storage capacity"""
