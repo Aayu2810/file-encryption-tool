@@ -160,47 +160,50 @@ class SteganographyWithPriority:
             
             print("\n🔓 Extracting hidden bits...")
             binary_data = ''
+            
+            # Convert delimiter to binary for comparison
             delimiter_binary = ''.join(format(byte, '08b') for byte in self.delimiter)
             
-            while priority_queue:
-    neg_priority, x, y = heapq.heappop(priority_queue)
-    pixel_index = y * width + x
-    pixel = pixels[pixel_index]
-    
-    for i in range(3):
-        binary_data += str(pixel[i] & 1)
-    
-    # Check for delimiter after collecting enough bits
-    if len(binary_data) >= len(delimiter_binary):
-        # Search for delimiter in the accumulated data
-        delimiter_index = binary_data.find(delimiter_binary)
-        
-        if delimiter_index != -1:
-            # Found delimiter! Extract data before it
-            binary_data = binary_data[:delimiter_index]
+            # Extract all possible bits
+            bits_extracted = 0
+            max_bits = len(priority_queue) * 3  # 3 bits per pixel (RGB)
             
+            while priority_queue and bits_extracted < max_bits:
+                neg_priority, x, y = heapq.heappop(priority_queue)
+                pixel_index = y * width + x
+                pixel = pixels[pixel_index]
+                
+                # Extract 3 LSBs (R, G, B)
+                for i in range(3):
+                    binary_data += str(pixel[i] & 1)
+                    bits_extracted += 1
+                
+                # Check if we found delimiter (check every 1000 bits to save time)
+                if bits_extracted % 1000 == 0:
+                    if delimiter_binary in binary_data:
+                        break
+            
+            print(f"Extracted {bits_extracted} bits, searching for delimiter...")
+            
+            # Find delimiter position
+            delimiter_pos = binary_data.find(delimiter_binary)
+            
+            if delimiter_pos == -1:
+                return False, "No hidden data found or delimiter not detected"
+            
+            # Extract data before delimiter
+            data_binary = binary_data[:delimiter_pos]
+            
+            # Convert binary to bytes
             all_bytes = bytearray()
-            for i in range(0, len(binary_data), 8):
-                byte = binary_data[i:i+8]
+            for i in range(0, len(data_binary), 8):
+                byte = data_binary[i:i+8]
                 if len(byte) == 8:
                     all_bytes.append(int(byte, 2))
             
             extracted_data = bytes(all_bytes)
             print(f"✓ Extracted {len(extracted_data)} bytes")
             return True, extracted_data
-                            binary_data = binary_data[:-len(delimiter_binary)]
-                            
-                            all_bytes = bytearray()
-                            for i in range(0, len(binary_data), 8):
-                                byte = binary_data[i:i+8]
-                                if len(byte) == 8:
-                                    all_bytes.append(int(byte, 2))
-                            
-                            extracted_data = bytes(all_bytes)
-                            print(f"✓ Extracted {len(extracted_data)} bytes")
-                            return True, extracted_data
-            
-            return False, "No hidden data found or delimiter not detected"
             
         except Exception as e:
             return False, f"Steganography decoding failed: {str(e)}"
