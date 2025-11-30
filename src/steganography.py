@@ -163,15 +163,31 @@ class SteganographyWithPriority:
             delimiter_binary = ''.join(format(byte, '08b') for byte in self.delimiter)
             
             while priority_queue:
-                neg_priority, x, y = heapq.heappop(priority_queue)
-                pixel_index = y * width + x
-                pixel = pixels[pixel_index]
-                
-                for i in range(3):
-                    binary_data += str(pixel[i] & 1)
-                    
-                    if len(binary_data) >= len(delimiter_binary):
-                        if binary_data.endswith(delimiter_binary):
+    neg_priority, x, y = heapq.heappop(priority_queue)
+    pixel_index = y * width + x
+    pixel = pixels[pixel_index]
+    
+    for i in range(3):
+        binary_data += str(pixel[i] & 1)
+    
+    # Check for delimiter after collecting enough bits
+    if len(binary_data) >= len(delimiter_binary):
+        # Search for delimiter in the accumulated data
+        delimiter_index = binary_data.find(delimiter_binary)
+        
+        if delimiter_index != -1:
+            # Found delimiter! Extract data before it
+            binary_data = binary_data[:delimiter_index]
+            
+            all_bytes = bytearray()
+            for i in range(0, len(binary_data), 8):
+                byte = binary_data[i:i+8]
+                if len(byte) == 8:
+                    all_bytes.append(int(byte, 2))
+            
+            extracted_data = bytes(all_bytes)
+            print(f"✓ Extracted {len(extracted_data)} bytes")
+            return True, extracted_data
                             binary_data = binary_data[:-len(delimiter_binary)]
                             
                             all_bytes = bytearray()
