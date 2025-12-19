@@ -14,7 +14,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             color: #333;
             line-height: 1.6;
         }
@@ -36,11 +36,16 @@
             font-size: 3.5em;
             margin-bottom: 15px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         header p {
             font-size: 1.3em;
             opacity: 0.95;
+            color: #a8dadc;
         }
 
         /* Feature Cards Grid */
@@ -52,17 +57,19 @@
         }
 
         .feature-card {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             padding: 35px;
             text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 2px solid rgba(58, 123, 213, 0.3);
         }
 
         .feature-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 50px rgba(0, 210, 255, 0.4);
+            border-color: #00d2ff;
         }
 
         .feature-icon {
@@ -72,13 +79,16 @@
         }
 
         .feature-card h2 {
-            color: #667eea;
+            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-size: 1.6em;
             margin-bottom: 15px;
         }
 
         .feature-card p {
-            color: #666;
+            color: #555;
             margin-bottom: 25px;
             line-height: 1.8;
         }
@@ -86,29 +96,34 @@
         .feature-card a {
             display: inline-block;
             padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
             color: white;
             text-decoration: none;
             border-radius: 25px;
             font-weight: bold;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .feature-card a:hover {
             transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 210, 255, 0.5);
         }
 
         /* About Section */
         .about-section {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             padding: 50px;
             margin: 40px 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 2px solid rgba(58, 123, 213, 0.2);
         }
 
         .about-section h2 {
-            color: #667eea;
+            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-size: 2.2em;
             margin-bottom: 20px;
             text-align: center;
@@ -127,7 +142,10 @@
         }
 
         .os-concepts h3 {
-            color: #667eea;
+            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-size: 1.8em;
             margin-bottom: 25px;
             text-align: center;
@@ -141,17 +159,19 @@
         }
 
         .os-item {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             color: white;
             padding: 25px;
             border-radius: 15px;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
+            border: 2px solid rgba(0, 210, 255, 0.3);
         }
 
         .os-item:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.5);
+            border-color: #00d2ff;
         }
 
         .os-item-icon {
@@ -164,6 +184,7 @@
             font-size: 1.2em;
             font-weight: bold;
             margin-bottom: 8px;
+            color: #00d2ff;
         }
 
         .os-item-desc {
@@ -175,7 +196,7 @@
         .os-item-location {
             margin-top: 10px;
             padding-top: 10px;
-            border-top: 1px solid rgba(255,255,255,0.3);
+            border-top: 1px solid rgba(0, 210, 255, 0.3);
             font-size: 0.85em;
             opacity: 0.9;
         }
@@ -189,25 +210,36 @@
         }
 
         .info-card {
-            background: #f8f9fa;
+            background: rgba(168, 218, 220, 0.1);
             padding: 30px;
             border-radius: 15px;
             text-align: center;
+            border: 2px solid rgba(0, 210, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            background: rgba(168, 218, 220, 0.2);
+            border-color: #00d2ff;
+            transform: translateY(-5px);
         }
 
         .info-card h4 {
-            color: #667eea;
+            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-size: 1.3em;
             margin-bottom: 15px;
         }
 
         .info-card p {
-            color: #555;
+            color: #2c5364;
             font-size: 1em;
         }
 
         .info-card a {
-            color: #667eea;
+            color: #00d2ff;
             text-decoration: none;
             font-weight: bold;
         }
@@ -218,12 +250,13 @@
 
         /* Stats Section */
         .stats-section {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 50%, #c44569 100%);
             border-radius: 20px;
             padding: 40px;
             margin: 40px 0;
             color: white;
             text-align: center;
+            box-shadow: 0 10px 30px rgba(196, 69, 105, 0.4);
         }
 
         .stats-grid {
@@ -251,15 +284,17 @@
 
         /* Footer */
         footer {
-            background: rgba(0,0,0,0.2);
+            background: rgba(15, 32, 39, 0.8);
             color: white;
             text-align: center;
             padding: 30px 20px;
             margin-top: 60px;
+            border-top: 2px solid rgba(0, 210, 255, 0.3);
         }
 
         footer p {
             margin: 5px 0;
+            color: #a8dadc;
         }
 
         /* Responsive Design */
@@ -289,11 +324,12 @@
 
         /* Highlight Badge */
         .badge {
-            background: rgba(255, 215, 0, 0.3);
+            background: rgba(0, 210, 255, 0.3);
             padding: 3px 10px;
             border-radius: 5px;
             font-weight: bold;
             font-size: 0.85em;
+            border: 1px solid rgba(0, 210, 255, 0.5);
         }
     </style>
 </head>
@@ -462,7 +498,7 @@
                 <div class="info-card">
                     <h4>🔗 Source Code</h4>
                     <p><a href="https://github.com/Aayu2810/file-encryption-tool" target="_blank">github.com/Aayu2810/file-encryption-tool</a></p>
-                    <p style="margin-top: 15px; color: #666;">⭐ Star the repository if you find it helpful!</p>
+                    <p style="margin-top: 15px; color: #2c5364;">⭐ Star the repository if you find it helpful!</p>
                 </div>
 
                 <div class="info-card">
